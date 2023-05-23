@@ -8,7 +8,7 @@ from nss import NSSProxy
 
 profile_path = "~/.mozilla/firefox"
 DEFAULT_ENCODING = "utf-8"
-PWStore = list[dict[str, str]]
+password_list = list[dict[str, str]]
 
 
 class Firefox:
@@ -38,7 +38,7 @@ class Firefox:
                 yield (i["hostname"], i["encryptedUsername"],
                        i["encryptedPassword"], i["encType"])
 
-    def decrypt_passwords(self) -> PWStore:
+    def decrypt_passwords(self) -> password_list:
         credentials = self.getCredentialsJson()
 
         outputs: list[dict[str, str]] = []
@@ -56,12 +56,12 @@ class Firefox:
 
         return outputs
 
-    def printOutput(self, pwstore: PWStore):
+    def printOutput(self, pwstore: password_list):
         for output in pwstore:
             if output['url'] == 'chrome://FirefoxAccounts':
                 continue
             record: str = (
-                f"\nWebsite:   {output['url']}\n"
+                f"\nWebsite:  '{output['url']}'\n"
                 f"Username: '{output['user']}'\n"
                 f"Password: '{output['password']}'"
             )
@@ -95,8 +95,6 @@ class Firefox:
 
         sections = self.get_sections(profiles)
 
-        print("Available profiles: ", sections)
-
         section = sections["1"]
         print("Using profile: ", section)
 
@@ -107,9 +105,9 @@ class Firefox:
 
 
 def main() -> None:
-    firefox = Firefox()
-
     basepath = os.path.expanduser(profile_path)
+
+    firefox = Firefox()
 
     profile = firefox.get_profile(basepath)
 
